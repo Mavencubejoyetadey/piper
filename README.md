@@ -23,3 +23,6 @@ An LED lights up each second during a timer interrupt. The total number of inter
 
 ##### (3) ButtonInterrupt Blink
 An LED lights up each second during a timer interrupt. In addition, an external interrupt is triggered for each rising edge of an external button press. Again, the total number of interrupts is sent to a terminal via serial connection.
+
+##### (4) I2C Polling
+A serial monitor updates with the Real-Time-Clock (RTC) time and date once per second. This will later be used to supply a base time after which a timer interrupt will manage time relative to music playing.
