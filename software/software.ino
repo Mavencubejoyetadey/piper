@@ -73,7 +73,7 @@ void setup() {
 // Set up timer, attach interrupt
   timer = timerBegin(0, 80, true);
   timerAttachInterrupt(timer, &onTimer, true);
-  timerAlarmWrite(timer, 1000000, true);
+  timerAlarmWrite(timer, 10000000, true);
   timerAlarmEnable(timer); 
 
 // Initialize Music Player if necessary
@@ -92,16 +92,61 @@ if (!SD.begin(CARDCS)) {
   printDirectory(SD.open("/"), 0);
 
 // Attach interrupt to the Music Player
-  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);
+  //musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);
 
 // Specify the .csv file to be read and print contents to serial monitor
-  File playlist = SD.open("/playlist.csv");
+  uint32_t nplay = 0;
+  uint32_t dec = 1;
+  uint32_t temp_pos = 0;
+  bool cond;
+  File playlist = SD.open("/playlist.csv"); //work in progress
   if(playlist){
     while(playlist.available()){
+      if(playlist.peek() ==  ','){ 
+        while(cond)
+        {
+          if(dec == 1){
+            temp_pos = playlist.position();
+            playlist.seek(playlist.position()-1);
+          }
+          playlist.seek(playlist.position()-1);
+          if(isdigit(playlist.peek())){
+            nplay = nplay + dec*playlist.peek();
+            dec = dec*10;
+          }
+          else{
+            cond = false;
+            playlist.seek(temp_pos+1);
+          }
+        }
+        Serial.write(nplay);
+      }
       Serial.write(playlist.read());
+      
     }
   }
   playlist.close();
+
+  Serial.println(F("Playing /AC_GuitarFX120D-01.mp3"));
+  musicPlayer.playFullFile("/AC_GuitarFX120D-01.mp3");
+  
+  Serial.println(F("Playing /WA_BeatLoopD-125.mp3"));
+  musicPlayer.playFullFile("/WA_BeatLoopD-125.mp3");
+
+  Serial.println(F("Playing /WA_GamerLead-136-A.mp3"));
+  musicPlayer.playFullFile("/WA_BeatLoopD-125.mp3");
+
+  Serial.println(F("Playing /WA_Wobbulous-160-A.mp3"));
+  musicPlayer.playFullFile("/WA_Wobbulous-160-A.mp3");
+
+  Serial.println(F("Playing /AC_GuitarMix85C-06.mp3"));
+  musicPlayer.playFullFile("/AC_GuitarMix85C-06.mp3");
+
+  Serial.println(F("Playing /AC_12Str85F-01.mp3"));
+  musicPlayer.playFullFile("/AC_12Str85F-01.mp3");
+
+  Serial.println(F("Playing /AC_GuitarMix120F-05.mp3"));
+  musicPlayer.playFullFile("/AC_GuitarMix120F-05.mp3");
 }
 
 void loop() {
@@ -118,6 +163,14 @@ void loop() {
     portENTER_CRITICAL(&mux);
     externalinterruptCounter = false;
     portEXIT_CRITICAL(&mux);
+  }
+
+// Condition for stopping
+  if (musicPlayer.stopped()) {
+  Serial.println("Done playing music");
+  while (1) {
+    delay(10);  // we're done! do nothing...
+    }
   }
 }
 
