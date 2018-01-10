@@ -95,40 +95,15 @@ if (!SD.begin(CARDCS)) {
   //musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);
 
 // Specify the .csv file to be read and print contents to serial monitor
-  uint32_t nplay = 0;
-  uint32_t dec = 1;
-  uint32_t temp_pos = 0;
-  bool cond;
-  File playlist = SD.open("/playlist.csv"); //work in progress
+  File playlist = SD.open("/playlist.csv");
   if(playlist){
     while(playlist.available()){
-      if(playlist.peek() ==  ','){ 
-        while(cond)
-        {
-          if(dec == 1){
-            temp_pos = playlist.position();
-            playlist.seek(playlist.position()-1);
-          }
-          playlist.seek(playlist.position()-1);
-          if(isdigit(playlist.peek())){
-            nplay = nplay + dec*playlist.peek();
-            dec = dec*10;
-          }
-          else{
-            cond = false;
-            playlist.seek(temp_pos+1);
-          }
-        }
-        Serial.write(nplay);
-      }
-      Serial.write(playlist.read());
-      
+      playlist.read();  // Reads character by character for each pass.
     }
-  }
   playlist.close();
-
+  }
   Serial.println(F("Playing /AC_GuitarFX120D-01.mp3"));
-  musicPlayer.playFullFile("/AC_GuitarFX120D-01.mp3");
+  musicPlayer.playFullFile("/AC_GuitarFX120D-01.mp3");  // Place file names here to play in order. Conditional loops may go here.
   
   Serial.println(F("Playing /WA_BeatLoopD-125.mp3"));
   musicPlayer.playFullFile("/WA_BeatLoopD-125.mp3");
@@ -156,6 +131,8 @@ void loop() {
     portENTER_CRITICAL(&mux);
     timerinterruptCounter = false;
     portEXIT_CRITICAL(&mux); 
+
+    // Write timer interrupt code here
   }
   
 // Button Interrupt Counter
@@ -163,6 +140,8 @@ void loop() {
     portENTER_CRITICAL(&mux);
     externalinterruptCounter = false;
     portEXIT_CRITICAL(&mux);
+
+    // Write button interrupt code here
   }
 
 // Condition for stopping
@@ -174,7 +153,7 @@ void loop() {
   }
 }
 
-// Code for properly listing the root directory
+// Code for properly listing the root directory (don't modify)
 void printDirectory(File dir, int numTabs) {
  while(true) {
   File entry =  dir.openNextFile();
