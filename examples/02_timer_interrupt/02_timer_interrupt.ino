@@ -15,9 +15,8 @@
  *            ___\///////////_______\///////////_____\///////////__
  *
  * *****************************************************************
- * This project uses an interrupt trigger when an indicator flips
- * value.  The vololtile data type indicates it can be safely
- * changed during an interrupt.
+ * This project uses a timer interrupt to trigger when an indicator
+ * flips value.
  * https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/
  * *****************************************************************
  */
