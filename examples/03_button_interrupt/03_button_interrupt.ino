@@ -1,75 +1,61 @@
-volatile bool timerinterruptCounter = false;                                //Flag for timer interrupts
-volatile bool externalinterruptCounter = false;                             //Flag for button interrupts
-int totalInterruptCounter;                                                  //Total number of interrupt occurrances
+/******************************************************************
+ * Button Interrupt Example
+ * Developed by Sevun Scientific, Inc.
+ * http://sevunscientific.com
+ * *****************************************************************
+ *
+ *    _____/\\\\\\\\\\\_______/\\\\\\\\\\\____/\\\\\\\\\\\_
+ *     ___/\\\/////////\\\___/\\\/////////\\\_\/////\\\///__
+ *      __\//\\\______\///___\//\\\______\///______\/\\\_____
+ *       ___\////\\\___________\////\\\_____________\/\\\_____
+ *        ______\////\\\___________\////\\\__________\/\\\_____
+ *         _________\////\\\___________\////\\\_______\/\\\_____
+ *          __/\\\______\//\\\___/\\\______\//\\\______\/\\\_____
+ *           _\///\\\\\\\\\\\/___\///\\\\\\\\\\\/____/\\\\\\\\\\\_
+ *            ___\///////////_______\///////////_____\///////////__
+ *
+ * *****************************************************************
+ * This project uses a GPIO interrupt to trigger when an indicator 
+ * flips value.
+ * *****************************************************************
+ */
 
-const byte topButton = 34;                                                  //Define some pin names (numbers found on bottom of ESP32)
-const byte topLED = 13;
-const byte bottomButton = 39;
-const byte bottomLED = 21;
-const byte externalButton = 36;
+// Define pin numbers
+#define  LED1     13
+#define  LED2     21
+#define  BUTTON1  34
+#define  BUTTON2  39
+#define  BUTTON3  36
 
-hw_timer_t * timer = NULL;
-portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-                                                                    
-void onTimer() {                                                            //ISR for timer interrupts
-  portENTER_CRITICAL_ISR(&mux);
-  timerinterruptCounter = true;                                             //Set flag
-  portEXIT_CRITICAL_ISR(&mux); 
+// Define variables
+volatile bool bInterruptFlag;                                       //Used by ISR to signal interrupt occurrance
+
+// Define functions
+void onButtonInterrupt()                                            //Interrupt Service Routine (ISR) for the timer
+{
+  bInterruptFlag = 1;
 }
 
-void onButton() {                                                           //ISR for button interrupts
-  portENTER_CRITICAL_ISR(&mux);
-  externalinterruptCounter = true;                                          //Set flag
-  portEXIT_CRITICAL_ISR(&mux);
-}
+void setup()
+{
+  // Initialized GPIO pins
+  pinMode(LED1,OUTPUT);
+  pinMode(LED2,OUTPUT);
+  pinMode(BUTTON1,INPUT);
+  pinMode(BUTTON2,INPUT);
+  pinMode(BUTTON3,INPUT);   // External Button
 
-void setup() {
- 
-  Serial.begin(115200);                                                     //Create a serial monitor
- 
-  timer = timerBegin(0, 80, true);                                          //Set up timer object
-  timerAttachInterrupt(timer, &onTimer, true);
-  timerAlarmWrite(timer, 1000000, true);
-  timerAlarmEnable(timer);                                                  //Enable timer
-
-  pinMode(topLED, OUTPUT);                                                  //Pin I/O muxing and setup
-  pinMode(bottomLED,OUTPUT);
-  pinMode(bottomButton,INPUT);
-  pinMode(topButton,INPUT);
-  pinMode(externalButton,INPUT);
-  attachInterrupt(digitalPinToInterrupt(externalButton),onButton,FALLING);  //Attaches the onButton ISR to pin 
-                                                                            //"external button" and triggers on
-                                                                            //falling edges
- 
+  // Initilize interrupt
+  attachInterrupt(digitalPinToInterrupt(BUTTON1),onButtonInterrupt,FALLING);  //Attaches the onButtonInterrupt ISR to pin 
+                                                                              //button and triggers on falling edges
 }
  
-void loop() {
- 
-  if (timerinterruptCounter) {                                              //Code to execute on timer interrupts
-    
-    portENTER_CRITICAL(&mux);
-    timerinterruptCounter = false;                                          //Reset flag
-    portEXIT_CRITICAL(&mux);
- 
-    totalInterruptCounter++;                                                //Upcount total interrupts
- 
-    digitalWrite(topLED, !digitalRead(topLED));                             //Toggle top LED (and built-in LED)
-    Serial.print("A timer interrupt has occurred. Total number: ");         //Output information to serial monitor
-    Serial.println(totalInterruptCounter);
- 
-  }
-
-  if(externalinterruptCounter) {                                            //Code to execute on button interrupts
-
-    portENTER_CRITICAL(&mux);
-    externalinterruptCounter = false;                                       //Reset flag
-    portEXIT_CRITICAL(&mux);
-    
-    totalInterruptCounter++;                                                //Upcount total interrupts
-
-    digitalWrite(bottomLED, !digitalRead(bottomLED));                       //Toggle bottom LED
-    Serial.print("An external interrupt has occurred. Total number: ");     //Output information to serial monitor
-    Serial.println(totalInterruptCounter);
+void loop()
+{
+  if ( bInterruptFlag )
+  {
+    bInterruptFlag = 0;                                             // Clear the interrupt flag
+    digitalWrite(LED1, !digitalRead(LED1));                         // Flip the value of indicator
   }
 }
 

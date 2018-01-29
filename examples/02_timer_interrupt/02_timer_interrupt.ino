@@ -34,8 +34,8 @@ volatile bool bInterruptFlag;                                       //Used by IS
 hw_timer_t * snazzyTimer = NULL;                                    //Timer object declared and is filled in below
 
 // Define functions
-void onTimerInterrupt()
-{                                                                   //Interrupt Service Routine (ISR) for the timer
+void onTimerInterrupt()                                             //Interrupt Service Routine (ISR) for the timer
+{
   bInterruptFlag = 1;
 }
  
@@ -47,7 +47,8 @@ void setup()
   pinMode(BUTTON1,INPUT);
   pinMode(BUTTON2,INPUT);
   pinMode(BUTTON3,INPUT);   // External Button
-  
+
+  // Initilize interrupt
   snazzyTimer = timerBegin(0, 80, true);                            //Assigns values to timer object from earlier
                                                                     // 0 = timer number (there are 4; valid values are 0,1,2,and 3)
                                                                     // 80 = timer frequency in MHz
