@@ -32,7 +32,6 @@
 // Define variables
 volatile bool bInterruptFlag;                                       //Used by ISR to signal interrupt occurrance
 hw_timer_t * snazzyTimer = NULL;                                    //Timer object declared and is filled in below
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;               //Used to synchronize the main loop and the ISR when modifying volatile variables
 
 // Define functions
 void onTimerInterrupt()
