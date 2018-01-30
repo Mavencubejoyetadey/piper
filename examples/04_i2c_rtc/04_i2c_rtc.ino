@@ -41,6 +41,7 @@ void setup ()
   else
   {
     Serial.println("Couldn't find RTC");
+    while (1);
   }
 
   // Verify RTC is initialized, else initilize
