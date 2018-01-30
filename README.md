@@ -37,20 +37,18 @@ This project uses a GPIO interrupt to trigger when an indicator flips value.
 ##### 04_i2c_rtc.ino
 Initilizes the RTC and displays the time on the serial monitor. See the basis for the example at [Adafruit RTC Library](https://github.com/adafruit/RTClib).
 
-##### (5) SPI_mp3
-- A serial monitor displays all files on the SD card inserted in the Music Maker feather's SD card slot.
-- Specified .mp3 files are played
-    - *Note that the filename must be as displayed on the serial monitor*
-- (Currently defunct) The serial monitor should take in inputs to stop and pause or play the music
+##### 05_read_csv.ino
+¿TBD?
 
-##### (6) SPI_CSV
-- Similar to the previous example, except it reads a csv file named "playlist".
-    - *note that the .csv file is read line-by-line. Further documentation is included in the SD library documentation*
+##### 06_play_audio.ino
+Initializes the Adafruit VS1053, then plays tones and music files from an SD card.
 
 ### software status
 ---
 *Contains the working project .ino file*
-- 1/10/2018
+- 2018-01-10
         --> Project is at a minimum
         --> Added necessary includes and definitions
         --> No functionality yet; ready to begin development
+- 2018-01-30
+        --> Examples working except read CSV example
