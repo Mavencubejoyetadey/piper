@@ -34,8 +34,8 @@ This project uses a timer interrupt to trigger when an indicator flips value.  S
 ##### 03_button_interrupt.ino
 This project uses a GPIO interrupt to trigger when an indicator flips value.
 
-##### (4) I2C_RTC
-- A serial monitor updates with the Real-Time-Clock (RTC) time and date once per second. This will later be used to supply a base time after which a timer interrupt will manage time relative to music playing.
+##### 04_i2c_rtc.ino
+Initilizes the RTC and displays the time on the serial monitor. See the basis for the example at [Adafruit RTC Library](https://github.com/adafruit/RTClib).
 
 ##### (5) SPI_mp3
 - A serial monitor displays all files on the SD card inserted in the Music Maker feather's SD card slot.
