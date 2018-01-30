@@ -1,36 +1,38 @@
-# piedpiper
+# Piper
 ---
-##### required Installations
+##### Required Installations
 - [Arduino IDE](https://www.arduino.cc/en/Main/Software)
 - [Drivers](https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/using-with-arduino-ide)
 - [Board](https://github.com/espressif/arduino-esp32/blob/master/docs/arduino-ide/windows.md)
 
-##### library documentation
+##### Library Documentation
 - [Adafruit_VS1053.h](https://github.com/adafruit/Adafruit_VS1053_Library)
 - [RTClib.h](https://learn.adafruit.com/ds1307-real-time-clock-breakout-board-kit/arduino-library)
 - [SPI.h](https://www.arduino.cc/en/Reference/SPI)
 - [SD.h](https://www.arduino.cc/en/Reference/SD)
 - [Wire.h](https://www.arduino.cc/en/Reference/Wire)
 
-### user-defined pins
+### User Defined Pins
 ---
-    Pin 13:     LED ("LED_BUILTIN" || topLED)
-    Pin 21:     LED ("bottomLED")
-    Pin 34:     Button ("topButton")
-    Pin 36:     Button ("bottomButton")
-    Pin 39:     Button ("externalButton")
+    Pin 13:     LED1 (LED_BUILTIN)
+    Pin 21:     LED2
+    Pin 34:     BUTTON1
+    Pin 36:     BUTTON3 (External Button)
+    Pin 39:     BUTTON2
+
+When reading the buttons, they normally read HIGH.  When a button is pressed they read LOW.
 
 ### examples
 ---
 *It is recommended that thet following examples are stepped through in order, as they increase in complexity.*
-##### (1) Button_Blink
-- An LED is lit for each button pressed.
+##### 01_button_blink.ino
+This project polls the button input values and displays the button status on the LED.  The logic for the buttons is inverted.  The button reads a HIGH normally and reads LOW when pressed.
 
-##### (2) Timer_Interrupt
-- An LED lights up each second during a timer interrupt. The total number of interrupts is sent to a terminal via serial connection.
+##### 02_timer_interrupt.ino
+This project uses a timer interrupt to trigger when an indicator flips value.  See the basis for the example at [techtotorialsx](https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/).
 
-##### (3) Button_Interrupt
-- An LED lights up each second during a timer interrupt. In addition, an external interrupt is triggered for each rising edge of an external button press. Again, the total number of interrupts is sent to a terminal via serial connection.
+##### 03_button_interrupt.ino
+This project uses a GPIO interrupt to trigger when an indicator flips value.
 
 ##### (4) I2C_RTC
 - A serial monitor updates with the Real-Time-Clock (RTC) time and date once per second. This will later be used to supply a base time after which a timer interrupt will manage time relative to music playing.
