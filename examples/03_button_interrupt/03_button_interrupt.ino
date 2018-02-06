@@ -47,15 +47,16 @@ void setup()
 
   // Initilize interrupt
   attachInterrupt(digitalPinToInterrupt(BUTTON1),onButtonInterrupt,FALLING);  //Attaches the onButtonInterrupt ISR to pin 
-                                                                              //button and triggers on falling edges
+                                                                              //  button and triggers on falling edges
 }
  
 void loop()
 {
   if ( bInterruptFlag )
   {
-    bInterruptFlag = 0;                                             // Clear the interrupt flag
-    digitalWrite(LED1, !digitalRead(LED1));                         // Flip the value of indicator
+    bInterruptFlag = 0;                                             //Clear the interrupt flag
+    digitalWrite(LED1, !digitalRead(LED1));                         //Flip the value of indicator
+    //DO SOMETHING (interrupt actions)
   }
 }
 

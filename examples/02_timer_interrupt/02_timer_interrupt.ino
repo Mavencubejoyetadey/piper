@@ -49,14 +49,14 @@ void setup()
 
   // Initilize interrupt
   snazzyTimer = timerBegin(0, 80, true);                            //Assigns values to timer object from earlier
-                                                                    // 0 = timer number (there are 4; valid values are 0,1,2,and 3)
-                                                                    // 80 = timer frequency in MHz
-                                                                    // true = timer type (true = upcount;false = downcount)
+                                                                    //  0 = timer number (there are 4; valid values are 0,1,2,and 3)
+                                                                    //  80 = timer frequency in MHz
+                                                                    //  true = timer type (true = upcount;false = downcount)
   timerAttachInterrupt(snazzyTimer, &onTimerInterrupt, true);       //Attaches the timer to the ISR "onTimerInterrupt"
-                                                                    // true = trigger type (true = edge;false = level)
+                                                                    //  true = trigger type (true = edge;false = level)
   timerAlarmWrite(snazzyTimer, 1000000, true);                      //Specifies that the timer should trigger
-                                                                    // 1,000,000 = number of microseconds between triggers
-                                                                    // true = reset, false = continue
+                                                                    //  1,000,000 = number of microseconds between triggers
+                                                                    //  true = reset, false = continue
   timerAlarmEnable(snazzyTimer);                                    //Enables timer 
 }
  
@@ -66,6 +66,7 @@ void loop()
   {
     bInterruptFlag = 0;                                             // Clear the interrupt flag
     digitalWrite(LED1, !digitalRead(LED1));                         // Flip the value of indicator
+    // DO SOMETHING (interrupt actions)
   }
   
   // DO SOMETHING

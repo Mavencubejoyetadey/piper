@@ -53,11 +53,11 @@ void setup ()
   {
     Serial.println("RTC is NOT initialized, starting now ...");
     
-    // Uncomment this line to set the RTC with an explicit date & time.
+    //Uncomment this line to set the RTC with an explicit date & time.
     //  For example, to set January 21, 2014 at 3am you would call:
     //timeywimey.adjust(DateTime(2014, 1, 21, 3, 0, 0));
     
-    // The following line sets the RTC to the date & time this sketch
+    //The following line sets the RTC to the date & time this sketch
     //  was compiled based of the computer time.  The initialized time
     //  is held as long as the battery lasts.
     timeywimey.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -82,5 +82,5 @@ void loop ()
     Serial.print(':');
     Serial.print(now.second(), DEC);
     Serial.println();
-    delay(1000);      // Delay 1000 milliseconds
+    delay(1000);      //Delay 1000 milliseconds
 }
