@@ -7,6 +7,13 @@ TinyGPS gps;
 const int offset = -5;  // Time Zone Offset
 time_t lastSecond = 0; // when the digital clock was displayed
 
+byte millis_then, millis_now, hundredths_then;
+
+unsigned long FixAge;
+int Year;
+byte Month, Day, Hour, Minute, Second, Hundredths;
+byte centiseconds;
+
 void setup()
 {
   Serial.begin(115200);
@@ -14,6 +21,10 @@ void setup()
   
   SerialGPS.begin(9600);
   Serial.println("Waiting for GPS time ... ");
+
+  //Setup initial values
+  millis_then = (byte)(millis())/10;
+  gps.crack_datetime(&Year, &Month, &Day, &Hour, &Minute, &Second, &hundredths_then, &FixAge);
 }
 
 void loop()
@@ -22,13 +33,12 @@ void loop()
   {
     if ( gps.encode( SerialGPS.read() ) )
     {
-      unsigned long FixAge;
-      int Year;
-      byte Month, Day, Hour, Minute, Second, Hundredths;
-      
+
       gps.crack_datetime(&Year, &Month, &Day, &Hour, &Minute, &Second, &Hundredths, &FixAge);
+      millis_now = (byte)(millis())/10;
 
       Serial.println(FixAge); 
+      Serial.println(Hundredths); 
       if (FixAge < 500)
       {
         setTime(Hour, Minute, Second, Day, Month, Year);
@@ -39,9 +49,11 @@ void loop()
   
   if ( timeStatus()!= timeNotSet )
   {
-    if (now() != lastSecond)
+    centiseconds = ((millis_now + hundredths_then-millis_then) % 100);  //if milliseconds aren't provided, make our own by adding delta in millis/10 to hundredths
+    if (now() != lastSecond || (centiseconds - Hundredths) >= 3)
     {  
       lastSecond = now();
+      centiseconds = Hundredths;
       
       Serial.print(year()); 
       Serial.print(" ");
@@ -54,7 +66,19 @@ void loop()
       Serial.print(minute());
       Serial.print(" ");
       Serial.print(second());
+      Serial.print(" mt: ");
+      Serial.print(millis_then);
+      Serial.print(" mn: ");
+      Serial.print(millis_now);
+      Serial.print(" ht: ");
+      Serial.print(hundredths_then);
+      Serial.print(" hn: ");
+      Serial.print(Hundredths);
+      Serial.print(" cs: ");
+      Serial.print(centiseconds);
       Serial.println(); 
     }
   }
+  millis_then = millis_now;
+  hundredths_then = Hundredths;
 }
