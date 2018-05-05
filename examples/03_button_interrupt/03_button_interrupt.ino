@@ -22,10 +22,10 @@
 
 // Define pin numbers
 #define  LED1     13
-#define  LED2     21
-#define  BUTTON1  34
-#define  BUTTON2  39
-#define  BUTTON3  36
+//#define  LED2     21
+#define  BUTTON1  A2
+#define  BUTTON2  A3
+#define  BUTTON3  A4
 
 // Define variables
 volatile bool bInterruptFlag;                                       //Used by ISR to signal interrupt occurrance
@@ -40,7 +40,7 @@ void setup()
 {
   // Initialized GPIO pins
   pinMode(LED1,OUTPUT);
-  pinMode(LED2,OUTPUT);
+//  pinMode(LED2,OUTPUT);
   pinMode(BUTTON1,INPUT);
   pinMode(BUTTON2,INPUT);
   pinMode(BUTTON3,INPUT);   // External Button
