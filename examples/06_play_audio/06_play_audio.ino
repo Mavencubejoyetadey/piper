@@ -87,8 +87,6 @@ void setup()
   
   Serial.println("Playing Track 005");
   musicPlayer.playFullFile("/track005.mp3");
-
-  musicPlayer.sineTest(0xFF, 300);
 }
 
 void loop()
