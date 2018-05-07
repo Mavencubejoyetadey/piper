@@ -30,7 +30,7 @@
 #define  BUTTON2  39
 #define  BUTTON3  36
 
-#define CST
+#define TIMEZONE_OFFSET -5
 
 // Define serial interface with GPS
 #define GPSSerial Serial2
@@ -44,6 +44,7 @@ time_t startTimeRAW;
 time_t deviceTimeRAW;
 volatile bool gogogoEvent;
 hw_timer_t * snazzyTimer = NULL;                                    //Timer object declared and is filled in below
+
 
 // Define functions
 void onTimerInterrupt()                                             //Interrupt Service Routine (ISR) for the timer
@@ -147,22 +148,23 @@ void loop()
     // Update the time if the GPS has a fix
     if (GPS.fix)
     {
-      setTime(makeTime(gpsTime));
+      setTime( makeTime(gpsTime) );
+      adjustTime(TIMEZONE_OFFSET * 3600);
     }
     
-    Serial.print("\nDate: 20");
-    Serial.print(GPS.year, DEC);
+    Serial.print("\nDate: ");
+    Serial.print(year(), DEC);
     Serial.print('/');
-    Serial.print(GPS.month, DEC);
+    Serial.print(month(), DEC);
     Serial.print('/');
-    Serial.print(GPS.day, DEC);
+    Serial.print(day(), DEC);
 
     Serial.print("\nTime: ");
-    Serial.print(GPS.hour, DEC);
+    Serial.print(hour(), DEC);
     Serial.print(':');
-    Serial.print(GPS.minute, DEC);
+    Serial.print(minute(), DEC);
     Serial.print(':');
-    Serial.print(GPS.seconds, DEC);
+    Serial.print(second(), DEC);
     Serial.print('.');
     Serial.print(GPS.milliseconds);    
     
