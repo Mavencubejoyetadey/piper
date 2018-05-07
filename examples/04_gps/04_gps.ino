@@ -23,39 +23,74 @@
 #include <Adafruit_GPS.h>
 #include <TimeLib.h>
 
-
 // Define pin numbers
 #define  LED1     13
+#define  LED2     21
+#define  BUTTON1  34
+#define  BUTTON2  39
+#define  BUTTON3  36
+
+#define CST
 
 // Define serial interface with GPS
-#define GPSSerial Serial1
+#define GPSSerial Serial2
+
+// Define serial interface
+HardwareSerial Serial2(2);
 Adafruit_GPS GPS(&GPSSerial);
 
 //Define variables
 time_t startTimeRAW;
 time_t deviceTimeRAW;
-volatile bool gogogoFlag = 0;
-volatile bool gogogoRunOnce = 0;
+volatile bool gogogoEvent;
+hw_timer_t * snazzyTimer = NULL;                                    //Timer object declared and is filled in below
 
-// Interrupt is called once a millisecond
-SIGNAL(TIMER0_COMPA_vect) 
-{  
-  if ( (startTimeRAW == deviceTimeRAW) && (0 == gogogoRunOnce ) && (0 != deviceTimeRAW ) )
+// Define functions
+void onTimerInterrupt()                                             //Interrupt Service Routine (ISR) for the timer
+{
+  if ( (startTimeRAW == now()) && (0 == gogogoEvent) )
   {
-    gogogoFlag = 1;
-    gogogoRunOnce = 1;
+    gogogoEvent = 1;
+  }
+  else
+  {
+    gogogoEvent = 0;  
   }
 }
-
+ 
 void setup()
 {
   // Initialized GPIO pins
   pinMode(LED1,OUTPUT);
-  
-  // Timer0 is already used for millis() - we'll just interrupt somewhere
-  // in the middle and call the "Compare A" function below
-  OCR0A = 0xAF;
-  TIMSK0 |= _BV(OCIE0A);
+  pinMode(LED2,OUTPUT);
+  pinMode(BUTTON1,INPUT);
+  pinMode(BUTTON2,INPUT);
+  pinMode(BUTTON3,INPUT);   // External Button
+
+  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
+  // also spit it out
+  Serial.begin(115200);
+  Serial.println("Adafruit GPS library basic test!");
+
+  //******************************
+  // Timer Setup
+  //******************************
+
+  // Initilize interrupt
+  snazzyTimer = timerBegin(0, 80, true);                            //Assigns values to timer object from earlier
+                                                                    // 0 = timer number (there are 4; valid values are 0,1,2,and 3)
+                                                                    // 80 = timer frequency in MHz
+                                                                    // true = timer type (true = upcount;false = downcount)
+  timerAttachInterrupt(snazzyTimer, &onTimerInterrupt, true);       //Attaches the timer to the ISR "onTimerInterrupt"
+                                                                    // true = trigger type (true = edge;false = level)
+  timerAlarmWrite(snazzyTimer, 1000, true);                         //Specifies that the timer should trigger
+                                                                    // 1,000,000 = number of microseconds between triggers
+                                                                    // true = reset, false = continue
+  timerAlarmEnable(snazzyTimer);                                    //Enables timer
+
+  //******************************
+  // GPS Setup
+  //******************************
      
   // 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
   GPS.begin(9600);
@@ -75,16 +110,24 @@ void setup()
   TimeElements startTime;
   startTime.Year    = 2018-1970;  //gpsTime.Year wants years since 1970
   startTime.Month   = 5;
-  startTime.Day     = 5;
-  startTime.Hour    = 3;
-  startTime.Minute  = 53;
+  startTime.Day     = 6;
+  startTime.Hour    = 23;
+  startTime.Minute  = 15;
   startTime.Second  = 0;
   
   startTimeRAW = makeTime(startTime);
 }
-
-void loop() // run over and over again
-{   
+ 
+void loop()
+{
+  // If the time is reached it runs this section once
+  if ( 1 == gogogoEvent )
+  {
+    gogogoEvent = 0;
+    
+    digitalWrite(LED1,HIGH);      
+  }
+  
   // read data from the GPS in the 'main loop'
   GPS.read();
   
@@ -100,20 +143,42 @@ void loop() // run over and over again
     gpsTime.Day     = GPS.day;
     gpsTime.Month   = GPS.month;
     gpsTime.Year    = 30+GPS.year;  //GPS.year returns 2 digit year, gpsTime.Year wants years since 1970
-        
-    deviceTimeRAW = makeTime(gpsTime);
-  }
 
-  // If the time is reached it runs this section once
-  if ( 1 == gogogoFlag )
-  {
-    gogogoFlag = 0;
-       
-    digitalWrite(LED1,HIGH);    // Turn on LED1 at specified time
-  }
-  else
-  {
-    digitalWrite(LED1,LOW);     // Turn off LED1 all other times
+    // Update the time if the GPS has a fix
+    if (GPS.fix)
+    {
+      setTime(makeTime(gpsTime));
+    }
+    
+    Serial.print("\nDate: 20");
+    Serial.print(GPS.year, DEC);
+    Serial.print('/');
+    Serial.print(GPS.month, DEC);
+    Serial.print('/');
+    Serial.print(GPS.day, DEC);
+
+    Serial.print("\nTime: ");
+    Serial.print(GPS.hour, DEC);
+    Serial.print(':');
+    Serial.print(GPS.minute, DEC);
+    Serial.print(':');
+    Serial.print(GPS.seconds, DEC);
+    Serial.print('.');
+    Serial.print(GPS.milliseconds);    
+    
+    Serial.print("\nFix: "); Serial.print((int)GPS.fix);
+    Serial.print(" Quality: "); Serial.println((int)GPS.fixquality);
+    
+    if (GPS.fix)
+    {
+      Serial.print("Location: ");
+      Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
+      Serial.print(", ");
+      Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+      Serial.print("Speed (knots): "); Serial.println(GPS.speed);
+      Serial.print("Angle: "); Serial.println(GPS.angle);
+      Serial.print("Altitude: "); Serial.println(GPS.altitude);
+      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+    }
   }
 }
-

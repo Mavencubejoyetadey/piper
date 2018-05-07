@@ -23,17 +23,17 @@
 
 // Define pin numbers
 #define  LED1     13
-//#define  LED2     21
-#define  BUTTON1  A2
-#define  BUTTON2  A3
-#define  BUTTON3  A4
+#define  LED2     21
+#define  BUTTON1  34
+#define  BUTTON2  39
+#define  BUTTON3  36
 
 // The setup function runs once when you press reset or power the board
 void setup()
 {
   // Initialized GPIO pins
   pinMode(LED1,OUTPUT);
-//  pinMode(LED2,OUTPUT);
+  pinMode(LED2,OUTPUT);
   pinMode(BUTTON1,INPUT);
   pinMode(BUTTON2,INPUT);
   pinMode(BUTTON3,INPUT);   // External Button
@@ -53,11 +53,11 @@ void loop()
   
   if( digitalRead(BUTTON2) )
   {
-//    digitalWrite(LED2,LOW);
+    digitalWrite(LED2,LOW);
   }
   else
   {
-//    digitalWrite(LED2,HIGH);
+    digitalWrite(LED2,HIGH);
   }
   
   if( digitalRead(BUTTON3) )

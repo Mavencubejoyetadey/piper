@@ -69,15 +69,24 @@ void setup()
     Serial.println("SD failed, or not present");
     while (1);  // don't do anything more
   }
-  
-  // Play a file
-  Serial.println("Playing guitar_01.mp3");
-  musicPlayer.playFullFile("/guitar_01.mp3");
 
   musicPlayer.sineTest(0x22, 400);  
   
-  Serial.println(F("Playing effect_01.mp3"));
-  musicPlayer.playFullFile("/effect_01.mp3");
+  // Play a file  
+  Serial.println("Playing Track 002");
+  musicPlayer.playFullFile("/track002.mp3");
+  
+  Serial.println("Playing Track 001");
+  musicPlayer.playFullFile("/track001.mp3");
+  
+  Serial.println("Playing Track 003");
+  musicPlayer.playFullFile("/track003.mp3");
+  
+  Serial.println("Playing Track 004");
+  musicPlayer.playFullFile("/track004.mp3");
+  
+  Serial.println("Playing Track 005");
+  musicPlayer.playFullFile("/track005.mp3");
 
   musicPlayer.sineTest(0xFF, 300);
 }
