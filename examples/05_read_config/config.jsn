@@ -1,0 +1,15 @@
+{
+  "product": "piper",
+  "version": "1.0.0",
+  "buildDate": 1525813722,
+  "tracks": [
+    {
+      "trackTitle": "track001.mp3",
+      "startTime": 1525813722
+    },
+    {
+      "trackTitle": "track002.mp3",
+      "startTime": 1525813722
+    }
+  ]
+}

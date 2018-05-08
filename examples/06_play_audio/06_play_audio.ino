@@ -1,5 +1,5 @@
 /******************************************************************
- * Audio Out via SPI Example
+ * Audio Out Example
  * Developed by Sevun Scientific, Inc.
  * http://sevunscientific.com
  * *****************************************************************
