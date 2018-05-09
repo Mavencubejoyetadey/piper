@@ -25,10 +25,6 @@
 
 // Define pin numbers
 #define  LED1     13
-#define  LED2     21
-#define  BUTTON1  34
-#define  BUTTON2  39
-#define  BUTTON3  36
 
 #define TIMEZONE_OFFSET -5
 
@@ -63,10 +59,6 @@ void setup()
 {
   // Initialized GPIO pins
   pinMode(LED1,OUTPUT);
-  pinMode(LED2,OUTPUT);
-  pinMode(BUTTON1,INPUT);
-  pinMode(BUTTON2,INPUT);
-  pinMode(BUTTON3,INPUT);   // External Button
 
   // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
   // also spit it out
@@ -111,9 +103,9 @@ void setup()
   TimeElements startTime;
   startTime.Year    = 2018-1970;  //gpsTime.Year wants years since 1970
   startTime.Month   = 5;
-  startTime.Day     = 6;
-  startTime.Hour    = 23;
-  startTime.Minute  = 15;
+  startTime.Day     = 9;
+  startTime.Hour    = 16;
+  startTime.Minute  = 19;
   startTime.Second  = 0;
   
   startTimeRAW = makeTime(startTime);
