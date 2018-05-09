@@ -83,15 +83,13 @@ Adafruit_GPS GPS(&GPSSerial);
 // MP3 Functions
 //******************************
 
-
-
 //******************************
 // Time Functions
 //******************************
 
 //Define time tracking variables
-time_t startTimeRAW;
-time_t deviceTimeRAW;
+//time_t startTimeRAW;
+//time_t deviceTimeRAW;
 
 //******************************
 // Timer Functions
@@ -133,6 +131,21 @@ void setup()
   //******************************
   // GPS Setup
   //******************************
+     
+  // 9600 NMEA is the default baud rate for GPS
+  GPS.begin(9600);
+  
+  // Turn on only the "minimum recommended" data
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
+
+  // Refresh rate from the GPS to microcontroller
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+
+  // Refresh rate for the GPS fix
+  GPS.sendCommand(PMTK_API_SET_FIX_CTL_1HZ);
+
+  // Delay while GPS gets setup
+  delay(1000);
   
   //******************************
   // JSON Setup
@@ -251,15 +264,71 @@ void setup()
     Serial.print("\r\nTrack Start: ");
     tracks[i]["startTime"].printTo(Serial);    
   }
+  
+  Serial.print("\r\n");
+  Serial.print("\r\nDate: ");
 }
 
 void loop()
 {
+  
+  //******************************
+  // Timer Actions
+  //******************************
+  
   if ( 1 == timerFlag )
   {
     timerFlag = 0;
 
-    Serial.print(".");
+    // DO SOMETHING
+  }
+  
+  //******************************
+  // GPS Actions
+  //******************************
+
+  // read data from the GPS in the 'main loop'
+  GPS.read();
+  
+  // if a sentence is received, we can check the checksum, parse it...
+  if ( GPS.newNMEAreceived() )
+  {
+    GPS.parse( GPS.lastNMEA() );  
+        
+    TimeElements gpsTime;
+    gpsTime.Second  = GPS.seconds;
+    gpsTime.Minute  = GPS.minute;
+    gpsTime.Hour    = GPS.hour;
+    gpsTime.Day     = GPS.day;
+    gpsTime.Month   = GPS.month;
+    gpsTime.Year    = 30+GPS.year;  //GPS.year returns 2 digit year, gpsTime.Year wants years since 1970
+
+    // Update the time if the GPS has a fix
+    if ( GPS.fix )
+    {
+      setTime( makeTime(gpsTime) );
+    }
+      
+    Serial.print("\r\nDate: ");
+    Serial.print(year(), DEC);
+    Serial.print('/');
+    Serial.print(month(), DEC);
+    Serial.print('/');
+    Serial.print(day(), DEC);
+
+    Serial.print("  Time: ");
+    Serial.print(hour(), DEC);
+    Serial.print(':');
+    Serial.print(minute(), DEC);
+    Serial.print(':');
+    Serial.print(second(), DEC);
+    Serial.print('.');
+    Serial.print(GPS.milliseconds);    
+    
+    Serial.print("  Fix: "); Serial.print((int)GPS.fix);
+
+    Serial.print("  Epoch: ");
+    Serial.print(now());    
   }
 }
 

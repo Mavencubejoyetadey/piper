@@ -37,7 +37,6 @@ Adafruit_GPS GPS(&GPSSerial);
 
 //Define variables
 time_t startTimeRAW;
-time_t deviceTimeRAW;
 volatile bool gogogoEvent;
 hw_timer_t * snazzyTimer = NULL;                                    //Timer object declared and is filled in below
 
