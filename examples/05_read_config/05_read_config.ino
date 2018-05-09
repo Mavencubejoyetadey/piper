@@ -47,31 +47,43 @@
 #include <SD.h>
 #include <ArduinoJson.h>
 
-#define CARDCS         14     // Card chip select pin
+#define CARDCS         14     // SD card chip select pin
 
-#define MAX_FILE_SIZE 1024
-#define JSON_BUFFER_SIZE 400
+#define MAX_FILE_SIZE     1024
+#define JSON_BUFFER_SIZE   400
 
 void setup()
 {
   // Kick off the serial communication
   Serial.begin(115200);
-  while(!Serial);
+  delay(1000);
 
   // Kick off the SD card access  
   if ( SD.begin(CARDCS) )
   {
-    Serial.println("SD reader OK ...");
+    Serial.print("SD reader OK ...\r\n");
   }
   else
   {
-    Serial.println("SD failed, or not present");
+    Serial.print("SD failed, or not present");
     while (1);  // don't do anything more
   }
 
   // Get data from SD card, make sure file is not bigger than
   char jsonText[MAX_FILE_SIZE];
   File myFile = SD.open("/config.json");
+
+  int myFileSize = myFile.size();
+  if ( myFileSize > MAX_FILE_SIZE)
+  {
+    Serial.print("\r\nFILE SIZE IS TOO LARGE!!!");
+    Serial.print("\r\nMAX FILE SIZE IS ");
+    Serial.print(MAX_FILE_SIZE);
+    Serial.print(" AND FILE SIZE IS ");
+    Serial.print(myFileSize);
+    while(1);  // don't do anything more    
+  }
+  
   myFile.readBytes(jsonText, MAX_FILE_SIZE);
   myFile.close();
 
@@ -109,20 +121,22 @@ void setup()
   
   Serial.print("\r\nBuild Date: ");
   root["buildDate"].printTo(Serial);
+
+  Serial.print("\r\nFile Size: ");
+  Serial.print(myFileSize);
     
   JsonArray& tracks = root["tracks"];
-  
-  Serial.print("\n");
-  Serial.print("\n");
-  tracks[0]["trackTitle"].printTo(Serial);
-  Serial.print("\n");
-  tracks[0]["startTime"].printTo(Serial);
+  int trackCount = tracks.size();
 
-  Serial.print("\n");
-  Serial.print("\n");
-  tracks[1]["trackTitle"].printTo(Serial);
-  Serial.print("\n");
-  tracks[1]["startTime"].printTo(Serial);
+  for (int i=0;i<trackCount;i++)
+  {
+    Serial.print("\r\n");
+    Serial.print("\r\nTrack Title: ");
+    tracks[i]["trackTitle"].printTo(Serial);
+    
+    Serial.print("\r\nTrack Start: ");
+    tracks[i]["startTime"].printTo(Serial);    
+  }
 }
 
 void loop()
