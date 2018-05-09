@@ -72,21 +72,12 @@ void setup()
 
   musicPlayer.sineTest(0x22, 400);  
   
-  // Play a file  
-  Serial.println("Playing Track 002");
-  musicPlayer.playFullFile("/track002.mp3");
-  
+  // Play a files  
   Serial.println("Playing Track 001");
   musicPlayer.playFullFile("/track001.mp3");
   
-  Serial.println("Playing Track 003");
-  musicPlayer.playFullFile("/track003.mp3");
-  
-  Serial.println("Playing Track 004");
-  musicPlayer.playFullFile("/track004.mp3");
-  
-  Serial.println("Playing Track 005");
-  musicPlayer.playFullFile("/track005.mp3");
+  Serial.println("Playing Track 002");
+  musicPlayer.playFullFile("/track002.mp3");
 }
 
 void loop()
