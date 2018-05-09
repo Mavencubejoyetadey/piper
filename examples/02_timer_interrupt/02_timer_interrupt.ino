@@ -23,10 +23,6 @@
 
 // Define pin numbers
 #define  LED1     13
-#define  LED2     21
-#define  BUTTON1  34
-#define  BUTTON2  39
-#define  BUTTON3  36
 
 // Define variables
 volatile bool bInterruptFlag;                                       //Used by ISR to signal interrupt occurrance
@@ -40,12 +36,8 @@ void onTimerInterrupt()                                             //Interrupt 
  
 void setup()
 {
-  // Initialized GPIO pins
+  // Initialized GPIO pin
   pinMode(LED1,OUTPUT);
-  pinMode(LED2,OUTPUT);
-  pinMode(BUTTON1,INPUT);
-  pinMode(BUTTON2,INPUT);
-  pinMode(BUTTON3,INPUT);   // External Button
 
   // Initilize interrupt
   snazzyTimer = timerBegin(0, 80, true);                            //Assigns values to timer object from earlier
