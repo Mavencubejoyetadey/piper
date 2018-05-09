@@ -38,9 +38,18 @@
 // GPIO Functions
 //******************************
 
+// Define pin numbers
+#define  LED1     13
+
 //******************************
 // Communication Functions
 //******************************
+
+// Define serial interface with GPS
+#define GPSSerial Serial2
+
+// Define serial interface
+HardwareSerial Serial2(2);
 
 //******************************
 // Timing Functions
@@ -49,6 +58,9 @@
 //******************************
 // GPS Functions
 //******************************
+
+// Define whcih Serial the GPS should use
+Adafruit_GPS GPS(&GPSSerial);
 
 //******************************
 // JSON Functions
@@ -70,6 +82,32 @@
 //******************************
 // MP3 Functions
 //******************************
+
+
+
+//******************************
+// Time Functions
+//******************************
+
+//Define time tracking variables
+time_t startTimeRAW;
+time_t deviceTimeRAW;
+
+//******************************
+// Timer Functions
+//******************************
+
+// Flag which gets set every timer timer is triggered
+volatile bool timerFlag;
+
+//Timer object declared and is filled in below
+hw_timer_t * snazzyTimer = NULL;
+
+//Interrupt Service Routine (ISR) for the timer
+void onTimerInterrupt()
+{
+  timerFlag = 1;
+}
 
 void setup()
 { 
@@ -118,6 +156,26 @@ void setup()
   //******************************
   // MP3 Setup
   //******************************
+  
+  //******************************
+  // Time Setup
+  //******************************
+  
+  //******************************
+  // Timer Setup
+  //******************************
+
+  // Initilize interrupt
+  snazzyTimer = timerBegin(0, 80, true);                            //Assigns values to timer object from earlier
+                                                                    // 0 = timer number (there are 4; valid values are 0,1,2,and 3)
+                                                                    // 80 = timer frequency in MHz
+                                                                    // true = timer type (true = upcount;false = downcount)
+  timerAttachInterrupt(snazzyTimer, &onTimerInterrupt, true);       //Attaches the timer to the ISR "onTimerInterrupt"
+                                                                    // true = trigger type (true = edge;false = level)
+  timerAlarmWrite(snazzyTimer, 1000, true);                         //Specifies that the timer should trigger
+                                                                    // 1,000,000 = number of microseconds between triggers
+                                                                    // true = reset, false = continue
+  timerAlarmEnable(snazzyTimer);                                    //Enables timer
   
   //******************************
   // Main Code
@@ -193,12 +251,15 @@ void setup()
     Serial.print("\r\nTrack Start: ");
     tracks[i]["startTime"].printTo(Serial);    
   }
-  
-  
 }
 
 void loop()
 {
-  // DO SOMETHING  
+  if ( 1 == timerFlag )
+  {
+    timerFlag = 0;
+
+    Serial.print(".");
+  }
 }
 
