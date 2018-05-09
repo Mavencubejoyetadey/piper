@@ -23,24 +23,23 @@
  * Epoch & Unix Timestamp Converstions (seconds since 1970 UTC)
  * https://www.epochconverter.com
  * 
- * Test JSON File should look like:
- * {
- *   "product": "piper",
- *   "version": "1.0.0",
- *   "buildDate": 1525813722,
- *   "tracks": [
- *     {
- *       "trackTitle": "track001.mp3",
- *       "startTime": 1525813723
- *     },
- *     {
- *       "trackTitle": "track002.mp3",
- *       "startTime": 1525813724
- *     }
- *   ]
- * }
- * 
- */
+ * Test JSON File ('config.json') should look like:
+{
+  "product": "piper",
+  "version": "1.0.0",
+  "buildDate": 1525813722,
+  "tracks": [
+    {
+      "trackTitle": "track001.mp3",
+      "startTime": 1525813723
+    },
+    {
+      "trackTitle": "track002.mp3",
+      "startTime": 1525813724
+    }
+  ]
+} 
+  */
 
 // include SPI, SD, and JSON libraries
 #include <SPI.h>
