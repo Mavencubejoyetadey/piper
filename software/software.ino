@@ -23,6 +23,8 @@
  * http://www.objgen.com/json/models/kJq
  * Epoch & Unix Timestamp Converstions (seconds since 1970 UTC)
  * https://www.epochconverter.com
+ * Robot Voice Generator
+ * https://lingojam.com/RobotVoiceGenerator
  * *****************************************************************
  */
 
@@ -56,7 +58,7 @@ HardwareSerial Serial2(2);
 //******************************
 
 time_t nextTime;
-String nextTrack;
+const char* nextTrack;
 bool findNextFlag = true;
 
 //******************************
@@ -65,6 +67,7 @@ bool findNextFlag = true;
 
 // Define whcih Serial the GPS should use
 Adafruit_GPS GPS(&GPSSerial);
+bool GPSFixFlag;
 
 //******************************
 // JSON Functions
@@ -222,10 +225,6 @@ void setup()
                                                                     // 1,000,000 = number of microseconds between triggers
                                                                     // true = reset, false = continue
   timerAlarmEnable(snazzyTimer);                                    //Enables timer
-  
-  //******************************
-  // Main Code
-  //******************************  
 }
 
 void loop()
@@ -234,7 +233,7 @@ void loop()
   // Timing Actions
   //******************************
 
-  if ( true == findNextFlag )
+  if ( GPSFixFlag && (true == findNextFlag) )
   {
     File myFile = SD.open("/config.json");
     
@@ -272,50 +271,50 @@ void loop()
     // Test if parsing succeeds.
     if (root.success())
     {
-      Serial.print("\r\nParsing of JSON file succeded ...");
+      Serial.print("\r\nParsing of JSON file succeded ... ");
     }
     else
     {
       Serial.print("\r\nParsing of JSON file failed");
       while(1);
     }
-  
-    // Print values
-    Serial.print("\r\n");
-    Serial.print("\r\nProject: ");
-    root["product"].printTo(Serial);
-    
-    Serial.print("\r\nVersion: ");
-    root["version"].printTo(Serial);
-    
-    Serial.print("\r\nBuild Date: ");
-    root["buildDate"].printTo(Serial);
-  
-    Serial.print("\r\nFile Size: ");
-    Serial.print(myFileSize);
-      
-    JsonArray& tracks = root["tracks"];
-    int trackCount = tracks.size();
-  
-    for (int i=0;i<trackCount;i++)
-    {    
-      // FIXME, SET WHICH TRACK PLAYS NEXT HERE
-  
-      nextTime = 1525924370;
-      nextTrack = "track001.mp3";  
-  
-      // FIXME, SET WHICH TRACK PLAYS NEXT HERE
-    }
-    
-    Serial.print("\r\n");
-    Serial.print("\r\nNext Track Title: ");
-    Serial.print(nextTrack);
-    
-    Serial.print("\r\nNext Track Start: ");
-    Serial.print(nextTime);
-    Serial.print("\r\n");
 
-    findNextFlag = false;
+    JsonArray& tracks = root["tracks"];
+    int trackCount;
+    trackCount = tracks.size();
+
+    // Remove tracks which started in past from list
+    for ( int i=trackCount-1; i >= 0; i--)
+    {
+      if ( now() > tracks[i]["startTime"] )
+      {
+          tracks.remove(i); 
+      }
+    }
+
+    Serial.print(tracks.size());
+    Serial.print(" Tracks Found");
+
+    trackCount = tracks.size();
+    if ( 0 == trackCount )
+    {
+      musicPlayer.playFullFile("/system/notracks.wav");
+      while(1);      
+    }
+    else
+    {
+      nextTime = 0x7FFFFFFF; // Dummy time way off in future
+      
+      for ( int i=0; i < trackCount; i++ )
+      {
+        if ( tracks[i]["startTime"] < nextTime )
+        {          
+          nextTime = tracks[i]["startTime"];
+          nextTrack = tracks[i]["trackTitle"];
+          findNextFlag = false;
+        }
+      }
+    }
   }  
   
   //******************************
@@ -326,11 +325,13 @@ void loop()
   {
     timerFlag = 0;
 
-    if ( now() >= nextTime )
+    if ( now() >= nextTime && GPSFixFlag )
     {
+      
       /// Play a files  
-      Serial.println("\r\nPlaying Track 001");
-      musicPlayer.playFullFile("/track001.mp3");
+      Serial.print("\r\nPlaying ");
+      Serial.print(nextTrack);
+      musicPlayer.playFullFile(nextTrack);
 
       findNextFlag = true;      
     }
@@ -359,6 +360,7 @@ void loop()
     // Update the time if the GPS has a fix
     if ( GPS.fix )
     {
+      GPSFixFlag = 1;
       setTime( makeTime(gpsTime) );
     }
       
