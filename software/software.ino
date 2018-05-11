@@ -90,7 +90,7 @@ char jsonText[MAX_FILE_SIZE];
 #define CARDCS              14  
 
 //******************************
-// MP3 Functions
+// Audio Functions
 //******************************
 
 // These are the pins not used
@@ -105,6 +105,63 @@ char jsonText[MAX_FILE_SIZE];
 // setup the music player
 Adafruit_VS1053_FilePlayer musicPlayer = 
   Adafruit_VS1053_FilePlayer(VS1053_RESET, VS1053_CS, VS1053_DCS, VS1053_DREQ, CARDCS);
+
+void announceNumString(String numbersInText)
+{
+  // Don't for to include the new line character at the end
+  //  so digit,digit,newline = 3 typically
+  const int BufferLength = 3;
+  
+  char numbersInChars[BufferLength];
+  numbersInText.toCharArray(numbersInChars, BufferLength);
+
+  for (int i=0;i<BufferLength-1;i++)
+  {  switch (numbersInChars[i])
+    {
+      case '0': musicPlayer.playFullFile("/system/0.wav"); break;
+      case '1': musicPlayer.playFullFile("/system/1.wav"); break;
+      case '2': musicPlayer.playFullFile("/system/2.wav"); break;
+      case '3': musicPlayer.playFullFile("/system/3.wav"); break;
+      case '4': musicPlayer.playFullFile("/system/4.wav"); break;
+      case '5': musicPlayer.playFullFile("/system/5.wav"); break;
+      case '6': musicPlayer.playFullFile("/system/6.wav"); break;
+      case '7': musicPlayer.playFullFile("/system/7.wav"); break;
+      case '8': musicPlayer.playFullFile("/system/8.wav"); break;
+      case '9': musicPlayer.playFullFile("/system/9.wav"); break;
+    }    
+  }  
+}
+
+void announceTimeRemaining(time_t timeInSeconds)
+{
+      TimeElements brokenTime;
+      breakTime(timeInSeconds,brokenTime);
+
+      int numHours = brokenTime.Hour;
+      int numMinutes = brokenTime.Minute;
+      int numSeconds = brokenTime.Second;
+      
+      Serial.print("\r\nNext track will play in ");
+      Serial.print(numHours);
+      Serial.print(":");
+      Serial.print(numMinutes);
+      Serial.print(":");
+      Serial.print(numSeconds);
+      Serial.print(" (h:m:s)");
+
+      String strHours = String(numHours);
+      String strMinutes = String(numMinutes);
+      String strSeconds = String(numSeconds);
+  
+      musicPlayer.playFullFile("/system/nexttrackplayin.wav");
+      announceNumString(strHours);      
+      musicPlayer.playFullFile("/system/hours.wav");
+      announceNumString(strMinutes);      
+      musicPlayer.playFullFile("/system/minutes.wav");
+      announceNumString(strSeconds);      
+      musicPlayer.playFullFile("/system/seconds.wav");
+  
+}
 
 //******************************
 // Time Functions
@@ -189,7 +246,7 @@ void setup()
   }
   
   //******************************
-  // MP3 Setup
+  // Audio Setup
   //******************************  
   
   // Initialise the music player
@@ -314,6 +371,9 @@ void loop()
           findNextFlag = false;
         }
       }
+
+      time_t timeInSeconds = nextTime-now();
+      announceTimeRemaining(timeInSeconds);
     }
   }  
   
