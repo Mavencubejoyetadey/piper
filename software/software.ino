@@ -282,6 +282,9 @@ void setup()
                                                                     // 1,000,000 = number of microseconds between triggers
                                                                     // true = reset, false = continue
   timerAlarmEnable(snazzyTimer);                                    //Enables timer
+
+  Serial.print("\r\nLooking for GPS signal ... ");
+  musicPlayer.playFullFile("/system/looking.wav");
 }
 
 void loop()
@@ -420,6 +423,12 @@ void loop()
     // Update the time if the GPS has a fix
     if ( GPS.fix )
     {
+      if ( 0 == GPSFixFlag)
+      {
+        Serial.print("\r\nLooking for GPS signal ... ");
+        musicPlayer.playFullFile("/system/found.wav");          
+      }
+      
       GPSFixFlag = 1;
       setTime( makeTime(gpsTime) );
     }
