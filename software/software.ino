@@ -57,6 +57,7 @@ HardwareSerial Serial2(2);
 // Timing Functions
 //******************************
 
+int timezone;
 time_t nextTime;
 const char* nextTrack;
 bool findNextFlag = true;
@@ -77,7 +78,7 @@ bool GPSFixFlag;
 #define MAX_FILE_SIZE     1024
 
 // Jason Buffer Size
-#define JSON_BUFFER_SIZE   512
+#define JSON_BUFFER_SIZE   1024
 
 // Setup array to store JSON data
 char jsonText[MAX_FILE_SIZE];
@@ -159,17 +160,12 @@ void announceTimeRemaining(time_t timeInSeconds)
       announceNumString(strMinutes);      
       musicPlayer.playFullFile("/system/minutes.wav");
       announceNumString(strSeconds);      
-      musicPlayer.playFullFile("/system/seconds.wav");
-  
+      musicPlayer.playFullFile("/system/seconds.wav");  
 }
 
 //******************************
 // Time Functions
 //******************************
-
-//Define time tracking variables
-//time_t startTimeRAW;
-//time_t deviceTimeRAW;
 
 //******************************
 // Timer Functions
@@ -282,9 +278,6 @@ void setup()
                                                                     // 1,000,000 = number of microseconds between triggers
                                                                     // true = reset, false = continue
   timerAlarmEnable(snazzyTimer);                                    //Enables timer
-
-  Serial.print("\r\nLooking for GPS signal ... ");
-  musicPlayer.playFullFile("/system/looking.wav");
 }
 
 void loop()
@@ -337,7 +330,12 @@ void loop()
     {
       Serial.print("\r\nParsing of JSON file failed");
       while(1);
-    }
+    }    
+
+    timezone = root["timezone"];
+    Serial.print("\r\nTimezone offset is ");
+    Serial.print(timezone);
+    Serial.print(" hours ...");
 
     JsonArray& tracks = root["tracks"];
     int trackCount;
@@ -346,14 +344,26 @@ void loop()
     // Remove tracks which started in past from list
     for ( int i=trackCount-1; i >= 0; i--)
     {
-      if ( now() > tracks[i]["startTime"] )
+      TimeElements startNextTrack;
+      startNextTrack.Second  = 0;
+      startNextTrack.Minute  = tracks[i]["startMinute"];
+      startNextTrack.Hour    = tracks[i]["startHour"];
+      startNextTrack.Day     = tracks[i]["startDay"];
+      startNextTrack.Month   = tracks[i]["startMonth"];      
+      int startNextYear = tracks[i]["startYear"];
+      startNextTrack.Year    = startNextYear-1970; //startNextTrack.Year wants years since 1970
+
+      time_t startTime = makeTime(startNextTrack) - timezone*3600;
+      
+      if ( now() > startTime )
       {
           tracks.remove(i); 
       }
     }
 
+    Serial.print("\r\n");
     Serial.print(tracks.size());
-    Serial.print(" Tracks Found");
+    Serial.print(" Tracks Found ...");
 
     trackCount = tracks.size();
     if ( 0 == trackCount )
@@ -366,10 +376,22 @@ void loop()
       nextTime = 0x7FFFFFFF; // Dummy time way off in future
       
       for ( int i=0; i < trackCount; i++ )
-      {
-        if ( tracks[i]["startTime"] < nextTime )
+      {      
+        TimeElements startNextTrack;
+        startNextTrack.Second  = 0;
+        startNextTrack.Minute  = tracks[i]["startMinute"];
+        startNextTrack.Hour    = tracks[i]["startHour"];
+        startNextTrack.Day     = tracks[i]["startDay"];
+        startNextTrack.Month   = tracks[i]["startMonth"];
+        //startNextTrack.Year wants years since 1970
+        int startNextYear = tracks[i]["startYear"];
+        startNextTrack.Year    = startNextYear-1970;
+  
+        time_t startTime = makeTime(startNextTrack) - timezone*3600;
+        
+        if ( startTime < nextTime )
         {          
-          nextTime = tracks[i]["startTime"];
+          nextTime = startTime;
           nextTrack = tracks[i]["trackTitle"];
           findNextFlag = false;
         }
@@ -388,7 +410,7 @@ void loop()
   {
     timerFlag = 0;
 
-    if ( now() >= nextTime && GPSFixFlag )
+    if ( (now() >= nextTime)&& (now() < nextTime + 86400) && GPSFixFlag )
     {
       
       /// Play a files  
@@ -455,4 +477,5 @@ void loop()
     Serial.print( now() );    
   }
 }
+
 
