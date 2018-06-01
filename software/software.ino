@@ -278,6 +278,9 @@ void setup()
                                                                     // 1,000,000 = number of microseconds between triggers
                                                                     // true = reset, false = continue
   timerAlarmEnable(snazzyTimer);                                    //Enables timer
+
+  Serial.print("\r\nLooking for GPS signal ... ");
+  musicPlayer.playFullFile("/system/looking.wav");
 }
 
 void loop()
