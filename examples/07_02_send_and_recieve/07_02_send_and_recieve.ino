@@ -15,8 +15,8 @@
 #define   MESH_PASSWORD   "somethingSneaky"
 
 // Callback method prototypes
-void onMeshNewConn( uint32_t newNodeID );
 void BroadCastHeartbeatCallback();
+void onMeshMsgRecv( uint32_t fromNodeID, String &broadcastMsg);
 
 // Scheduled tasks
 Task BroadCastHeartbeat(3000, TASK_FOREVER, &BroadCastHeartbeatCallback);
@@ -25,6 +25,7 @@ Task BroadCastHeartbeat(3000, TASK_FOREVER, &BroadCastHeartbeatCallback);
 uint32_t  nodeID;
 painlessMesh  mesh;
 Scheduler runner;
+SimpleList <uint32_t> nodes;
 
 void setup()
 {
@@ -50,7 +51,7 @@ void setup()
   Serial.print("Device NodeID is: ");
   Serial.println(nodeID);
 
-  mesh.onNewConnection(&onMeshNewConn);
+  mesh.onReceive(&onMeshMsgRecv);
 }
 
 void loop()
@@ -62,12 +63,17 @@ void loop()
 
 void BroadCastHeartbeatCallback()
 {
-  Serial.print("BroadCastHeartbeat: ");
-  Serial.println(millis());
+  String broadcastMsg = "Hola";
+  mesh.sendBroadcast(broadcastMsg);
+
+  nodes = mesh.getNodeList();
+  Serial.printf("Num nodes: %d\n", nodes.size());
 }
 
-void onMeshNewConn( uint32_t newNodeID )
+void onMeshMsgRecv( uint32_t fromNodeID, String &broadcastMsg)
 {
-  Serial.print("Found new NodeID: ");
-  Serial.println(newNodeID);
+  Serial.print("Rx: ");
+  Serial.print(broadcastMsg);
+  Serial.print(" from ");
+  Serial.println(fromNodeID);
 }
