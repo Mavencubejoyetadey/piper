@@ -156,7 +156,7 @@ void BroadCastHeartbeatCallback()
   mesh.sendBroadcast(broadcastMsg);
 
   nodes = mesh.getNodeList();
-  Serial.printf("Nodes found: %d\n", nodes.size());
+  Serial.printf( "Nodes found: %d\n", nodes.size() );
 }
 
 void onMeshMsgRecv( uint32_t fromNodeID, String &broadcastMsg)
