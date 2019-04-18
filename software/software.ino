@@ -47,7 +47,6 @@ uint32_t  nodeID;
 painlessMesh  mesh;
 Scheduler runner;
 SimpleList <uint32_t> nodes;
-File myFile;
 uint32_t configVersion;
 
 void setup()
@@ -83,37 +82,35 @@ void setup()
     Serial.println("Found");
     Serial.print("Getting version ...         ");
 
-    myFile = SD.open("/config.json");
+// *********************************************************************
+    File myFile = SD.open("/config.json");
     if ( myFile )
     {
-      while ( myFile.available() )
+      while (myFile.available() )
       {               
         int size = myFile.size();
         std::unique_ptr<char[]> buf(new char[size]);  
         DynamicJsonBuffer jsonBuffer; 
-        JsonObject &root = jsonBuffer.parseObject(myFile);
-
-        if ( !root.success() )
-        {
-          Serial.println("Failed");
-          while(1);
-        }
-        configVersion = root["version"];
-        myFile.close();     
+//        JsonObject &root = jsonBuffer.parseObject(myFile);
+//    
+//        if (!root.success())Serial.println(F("ERROR !! Config In SD_Card"));
+//        int sdtime = root["version"];
+        Serial.println(configVersion);
+        myFile.close();  //SD Card close
       } 
     }
-    Serial.println(configVersion);
+// *********************************************************************    
   }
   else
   {
     Serial.println("Missing");
-    Serial.print("Creating config ...         ");
 
     // Create temporary JSON buffer with example config file
+    Serial.print("Creating config ...         ");
     StaticJsonBuffer<200> jsonBuffer;
     JsonObject& root = jsonBuffer.createObject();
     root["version"] = 0;    
-    myFile = SD.open("/config.json", FILE_WRITE);    
+    File myFile = SD.open("/config.json", FILE_WRITE);    
     if ( 0 == root.printTo(myFile) )
     {
       Serial.println("Failed");
